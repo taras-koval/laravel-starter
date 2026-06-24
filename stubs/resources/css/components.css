@@ -1,0 +1,30 @@
+/**
+ * Components layer — reusable multi-utility class abstractions.
+ *
+ * Add here:
+ *   - Buttons:       .btn { @apply inline-flex items-center px-4 py-2 rounded font-medium; }
+ *   - Badges:        .badge { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs; }
+ *   - Cards:         .card { @apply bg-white rounded-xl shadow-card p-6; }
+ *   - Inputs:        .input { @apply w-full border border-neutral-300 rounded-lg px-3 py-2; }
+ *   - Alerts:        .alert { @apply flex gap-3 p-4 rounded-lg border; }
+ *   - Nav items:     .nav-link { @apply text-sm font-medium text-neutral-600 hover:text-neutral-900; }
+ *   - Link variants: .underline-link-component, .btn-link
+ *
+ * Prefer @apply for Tailwind utilities. Extract a component only when
+ * the pattern repeats 3+ times across templates.
+ *
+ * Do NOT add one-off styles or theme tokens here.
+ */
+
+@layer components {
+    .container {
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .underline-link-component {
+        @apply inline font-medium text-sm text-neutral-800 underline underline-offset-[6px] hover:decoration-neutral-800/50
+    }
+}

@@ -1,0 +1,19 @@
+/**
+ * Base layer — low-specificity global defaults applied on top of Tailwind's preflight.
+ *
+ * Add here:
+ *   - HTML element resets:    h1, h2, h3 { @apply font-bold tracking-tight; }
+ *   - Body defaults:          body { @apply bg-white text-neutral-900 antialiased; }
+ *   - Link defaults:          a { @apply text-brand underline; }
+ *   - Focus ring styles:      :focus-visible { @apply outline-2 outline-brand; }
+ *   - Form element resets:    input, textarea, select { @apply border border-neutral-300 rounded; }
+ *   - Selection color:        ::selection { @apply bg-brand/20; }
+ *   - Scrollbar styles:       ::-webkit-scrollbar { @apply w-1.5; }
+ *   - Layout containers:      .container utility customizations
+ *
+ * Do NOT add component classes (.btn, .card) or theme tokens here.
+ */
+
+@layer base {
+    /* Example: body { @apply bg-white text-neutral-900 antialiased; } */
+}

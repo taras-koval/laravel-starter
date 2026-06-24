@@ -1,0 +1,21 @@
+/**
+ * Utilities layer — single-purpose helper classes not covered by Tailwind core.
+ *
+ * Add here:
+ *   - Missing CSS properties:  .overflow-anchor-none { overflow-anchor: none; }
+ *   - Custom scroll snap:      .snap-mandatory { scroll-snap-type: x mandatory; }
+ *   - Text balancing:          .text-balance { text-wrap: balance; }
+ *   - Masonry layout:          .masonry { columns: 3; gap: 1.5rem; }
+ *   - Gradient text:           .text-gradient { background-clip: text; color: transparent; }
+ *   - Truncate multiline:      .line-clamp-3 { -webkit-line-clamp: 3; ... }
+ *   - Custom grid areas:       .grid-layout { grid-template-areas: "header" "main" "footer"; }
+ *
+ * Each class must do exactly ONE thing (like Tailwind's own utilities).
+ * Do NOT use @apply here — write plain CSS properties.
+ */
+
+@layer utilities {
+    .overflow-anchor-none {
+        overflow-anchor: none;
+    }
+}

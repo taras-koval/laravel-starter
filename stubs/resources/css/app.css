@@ -1,0 +1,23 @@
+/**
+ * Entry point — imports only. Do not add styles directly here.
+ *
+ * Load order matters:
+ *   1. tailwindcss  — Tailwind's preflight + utilities
+ *   2. @source      — paths Tailwind scans for class usage
+ *   3. theme.css    — design tokens (@theme)
+ *   4. base.css     — global HTML element defaults (@layer base)
+ *   5. components.css — reusable component abstractions (@layer components)
+ *   6. utilities.css  — single-purpose custom helpers (@layer utilities)
+ */
+
+@import 'tailwindcss';
+@import './theme.css';
+@import './base.css';
+@import './components.css';
+@import './utilities.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+

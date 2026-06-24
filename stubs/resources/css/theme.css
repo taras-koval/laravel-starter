@@ -1,0 +1,23 @@
+/**
+ * Design tokens — CSS-first Tailwind v4 theme configuration.
+ *
+ * Add here:
+ *   - Custom colors:        --color-brand: oklch(0.72 0.11 178);
+ *   - Custom fonts:         --font-display: 'Cal Sans', sans-serif;
+ *   - Custom breakpoints:   --breakpoint-3xl: 120rem;
+ *   - Custom spacing:       --spacing-18: 4.5rem;
+ *   - Custom border-radius: --radius-btn: 0.375rem;
+ *   - Custom shadows:       --shadow-card: 0 4px 24px rgb(0 0 0 / 0.08);
+ *   - Custom animations:    --animate-fade-in: fade-in 0.2s ease-out;
+ *   - Dark mode palette:    --color-surface: light-dark(#fff, #0f172a);
+ *
+ * Do NOT add component styles or utility overrides here.
+ * Reference tokens elsewhere with: var(--color-brand), text-brand, bg-surface, etc.
+ */
+
+@theme {
+    --font-sans: 'Instrument Sans', system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --breakpoint-sm: 30rem;
+    --breakpoint-2xl: initial;
+}

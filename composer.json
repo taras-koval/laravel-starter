@@ -1,0 +1,42 @@
+{
+    "name": "taras-koval/laravel-starter",
+    "description": "Publishes and updates Laravel starter files (controllers, models, config, etc.) into existing projects through a single Artisan command.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "starter", "scaffolding", "publish"],
+    "authors": [
+        {
+            "name": "Taras Koval",
+            "email": "taraskovaldev@gmail.com",
+            "homepage": "https://github.com/taras-koval"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/console": "^13.0",
+        "illuminate/filesystem": "^13.0",
+        "illuminate/support": "^13.0"
+    },
+    "suggest": {
+        "laravel/sanctum": "^4.3 — Required for API token authentication",
+        "dedoc/scramble": "^0.13 — OpenAPI documentation generation",
+        "spatie/laravel-query-builder": "^7.2 — Required for includable relations feature",
+        "geoip2/geoip2": "^3.3 — Required for GeoIP session metadata",
+        "jenssegers/agent": "^2.6 — Required for device detection in sessions",
+        "mcamara/laravel-localization": "^2.4 — Required for localized web routes"
+    },
+    "autoload": {
+        "psr-4": {
+            "TarasKoval\\LaravelStarter\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TarasKoval\\LaravelStarter\\LaravelStarterServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
