@@ -225,9 +225,9 @@ The published application reads the client IP from `X-Forwarded-*` headers when 
 
 | Value | Behavior |
 | --- | --- |
-| `TRUSTED_PROXIES=` *(empty)* | Trust no proxy. `X-Forwarded-*` headers are ignored and `request()->ip()` returns the real TCP remote address. |
-| `TRUSTED_PROXIES=*` | Trust **any** proxy. Use only when you control the network path (for example, behind AWS ELB or Heroku where proxy IPs rotate). |
-| `TRUSTED_PROXIES=1.2.3.4,10.0.0.0/8` | Trust the listed IPs and CIDR ranges only. |
+| `TRUSTED_PROXIES=` *(empty)* | Trust no proxy. `X-Forwarded-*` headers are ignored and `request()->ip()` returns the real TCP remote address. Safe default when no proxy is present. |
+| `TRUSTED_PROXIES=*` | Trust **any** proxy. Use behind AWS ELB, Heroku, Fly.io, or temporarily for local GeoIP testing (send a fake `X-Forwarded-For: 8.8.8.8` header via Postman). |
+| `TRUSTED_PROXIES=1.2.3.4,10.0.0.0/8` | Trust specific IPs and CIDR ranges only (for example, [Cloudflare IP ranges](https://www.cloudflare.com/ips/)). |
 
 ### When to use each option
 
