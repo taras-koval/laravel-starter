@@ -57,6 +57,12 @@ class StarterPublishCommand extends Command
      */
     protected array $filesWhenMissing = [
         [
+            'stub' => 'routes/api.php',
+            'destination' => 'routes/api.php',
+            'needle' => '<?php',
+            'label' => 'API routes',
+        ],
+        [
             'stub' => 'routes/web.php',
             'destination' => 'routes/web.php',
             'needle' => 'LaravelLocalization::setLocale()',

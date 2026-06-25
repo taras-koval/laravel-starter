@@ -4,6 +4,34 @@ A development-only package that publishes and updates a shared set of Laravel st
 
 **Requirements:** Laravel 13 and PHP 8.3+.
 
+## Quickstart
+
+The full sequence for a brand-new API project:
+
+```bash
+# 1. Create a new Laravel project
+composer global update laravel/installer --with-all-dependencies
+laravel new app --git && cd my-api
+
+# 2. Install the starter package
+composer require --dev taras-koval/laravel-starter
+
+# 3. Install the stub dependencies
+composer require laravel/sanctum dedoc/scramble spatie/laravel-query-builder geoip2/geoip2 jenssegers/agent mcamara/laravel-localization
+
+# 4. Publish all starter files
+php artisan starter:publish
+
+# 5. Run migrations
+php artisan migrate
+
+# 6. Create the public storage symlink
+php artisan storage:link
+
+# 7. Generate AI config files (if using Laravel Boost)
+php artisan boost:install
+```
+
 ## Installation
 
 Install the package as a development dependency:
@@ -107,8 +135,9 @@ The command uses three publishing strategies, described below.
 
 | Target | Condition |
 | --- | --- |
-| `routes/web.php` | Copied in full only when the file does not already contain `LaravelLocalization::setLocale()`; otherwise left untouched |
-| `README.md` | Copied in full only when the file does not already contain `Trusted Proxies`; otherwise left untouched |
+| `routes/api.php` | Copied only when the file does not already exist; otherwise left untouched |
+| `routes/web.php` | Copied only when the file does not already contain `LaravelLocalization::setLocale()`; otherwise left untouched |
+| `README.md` | Copied only when the file does not already contain `Trusted Proxies`; otherwise left untouched |
 
 ### Migrations (published with a fresh timestamp)
 
