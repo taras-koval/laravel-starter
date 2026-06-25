@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use RuntimeException;
 use Throwable;
 
 class UpdateGeoIpDatabaseCommand extends Command
@@ -70,8 +71,10 @@ class UpdateGeoIpDatabaseCommand extends Command
 
             $this->info('Extracting...');
 
-            $extractDir = sys_get_temp_dir() . '/geoip_extract_' . uniqid();
-            @mkdir($extractDir, 0755, true);
+            $extractDir = sys_get_temp_dir() . '/geoip_extract_' . uniqid('', true);
+            if (!mkdir($extractDir, 0755, true) && !is_dir($extractDir)) {
+                throw new RuntimeException(sprintf('Directory "%s" was not created', $extractDir));
+            }
 
             $result = Process::run(['tar', '-xzf', $tempTarGz, '-C', $extractDir]);
 
@@ -90,8 +93,8 @@ class UpdateGeoIpDatabaseCommand extends Command
             }
 
             $targetDir = dirname($targetPath);
-            if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0755, true);
+            if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true) && !is_dir($targetDir)) {
+                throw new RuntimeException(sprintf('Directory "%s" was not created', $targetDir));
             }
             copy($mmdbFile, $targetPath);
 
