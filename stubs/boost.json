@@ -5,10 +5,14 @@
     "cloud": false,
     "guidelines": true,
     "mcp": true,
-    "nightwatch_mcp": false,
+    "nightwatch": false,
+    "packages": [
+        "spatie/laravel-query-builder"
+    ],
     "sail": false,
     "skills": [
         "laravel-best-practices",
-        "tailwindcss-development"
+        "tailwindcss-development",
+        "laravel-query-builder"
     ]
 }

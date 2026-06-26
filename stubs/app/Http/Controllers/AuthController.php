@@ -178,6 +178,21 @@ class AuthController extends Controller
         return response()->json(['message' => 'Email successfully verified.']);
     }
 
+    public function sessions(Request $request): AnonymousResourceCollection
+    {
+        return SessionResource::collection(
+            $request->user()->tokens()->latest('last_used_at')->get(),
+        );
+    }
+
+    public function revokeSession(Request $request, int $id): Response
+    {
+        $token = $request->user()->tokens()->where('id', $id)->firstOrFail();
+        $token->delete();
+
+        return response()->noContent();
+    }
+
     public function logout(Request $request): Response
     {
         $user = $request->user();
@@ -196,21 +211,6 @@ class AuthController extends Controller
         $currentTokenId = $user->currentAccessToken()->id;
 
         $user->tokens()->where('id', '!=', $currentTokenId)->delete();
-
-        return response()->noContent();
-    }
-
-    public function sessions(Request $request): AnonymousResourceCollection
-    {
-        return SessionResource::collection(
-            $request->user()->tokens()->latest('last_used_at')->get(),
-        );
-    }
-
-    public function revokeSession(Request $request, int $id): Response
-    {
-        $token = $request->user()->tokens()->where('id', $id)->firstOrFail();
-        $token->delete();
 
         return response()->noContent();
     }
