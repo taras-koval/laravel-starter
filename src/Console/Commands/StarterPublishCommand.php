@@ -69,6 +69,12 @@ class StarterPublishCommand extends Command
             'label' => 'localized web routes',
         ],
         [
+            'stub' => 'routes/console.php',
+            'destination' => 'routes/console.php',
+            'needle' => "Schedule::command('app:update-geoip-database')",
+            'label' => 'scheduled GeoIP update command',
+        ],
+        [
             'stub' => 'README.md',
             'destination' => 'README.md',
             'needle' => 'Trusted Proxies',

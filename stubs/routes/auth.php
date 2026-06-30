@@ -34,4 +34,3 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/user', [UserController::class, 'show'])->name('user.show');
     Route::patch('/user', [UserController::class, 'update'])->name('user.update');
 });
-

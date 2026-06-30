@@ -137,6 +137,7 @@ The command uses three publishing strategies, described below.
 | --- | --- |
 | `routes/api.php` | Copied only when the file does not already exist; otherwise left untouched |
 | `routes/web.php` | Copied only when the file does not already contain `LaravelLocalization::setLocale()`; otherwise left untouched |
+| `routes/console.php` | Copied only when the file does not already contain `Schedule::command('app:update-geoip-database')`; otherwise left untouched |
 | `README.md` | Copied only when the file does not already contain `Trusted Proxies`; otherwise left untouched |
 
 ### Migrations (published with a fresh timestamp)
