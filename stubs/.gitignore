@@ -7,7 +7,9 @@
 .phpunit.result.cache
 /.ai
 /.codex
-/.cursor/
+/.cursor/mcp.json
+/.cursor/rules/laravel-boost.mdc
+/.cursor/skills
 /.fleet
 /.idea
 /.nova

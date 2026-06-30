@@ -20,6 +20,7 @@ class StarterPublishCommand extends Command
         'app' => 'app',
         'resources' => 'resources',
         'tests' => 'tests',
+        '.cursor/rules' => '.cursor/rules',
         '.github' => '.github',
     ];
 

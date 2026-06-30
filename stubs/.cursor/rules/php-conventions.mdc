@@ -1,0 +1,10 @@
+---
+description: PHP and Laravel conventions for this project
+globs: **/*.php
+alwaysApply: false
+---
+
+# PHP Conventions
+
+- Enum type names must end with `Enum`: `DriverStatusEnum`, `PaymentMethodEnum`.
+- Case names must be SCREAMING_SNAKE_CASE: `PENDING`, `ACTIVATED`, `DEACTIVATED`.
