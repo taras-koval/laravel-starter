@@ -3,6 +3,7 @@
 namespace TarasKoval\LaravelStarter\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 
 class StarterPublishCommand extends Command
@@ -52,15 +53,15 @@ class StarterPublishCommand extends Command
     ];
 
     /**
-     * Files copied only when the destination is missing or lacks a marker string.
+     * Files copied only when the destination is missing or lacks any marker string.
      *
-     * @var array<int, array{stub: string, destination: string, needle: string, label: string}>
+     * @var array<int, array{stub: string, destination: string, needle: string|array<int, string>, label: string}>
      */
     protected array $filesWhenMissing = [
         [
             'stub' => 'routes/api.php',
             'destination' => 'routes/api.php',
-            'needle' => '<?php',
+            'needle' => ["Route::get('/test'", "Route::get('/user'"],
             'label' => 'API routes',
         ],
         [
@@ -162,7 +163,9 @@ class StarterPublishCommand extends Command
     }
 
     /**
-     * @param  array{stub: string, destination: string, needle: string, label: string}  $file
+     * @param  array{stub: string, destination: string, needle: string|array<int, string>, label: string}  $file
+     *
+     * @throws FileNotFoundException
      */
     protected function publishFileWhenMissing(Filesystem $files, array $file): bool
     {
@@ -176,7 +179,7 @@ class StarterPublishCommand extends Command
 
         $target = base_path($file['destination']);
 
-        if ($files->exists($target) && str_contains($files->get($target), $file['needle'])) {
+        if ($files->exists($target) && $this->containsAnyNeedle($files->get($target), $file['needle'])) {
             $this->components->twoColumnDetail("{$file['destination']} — {$file['label']}", '<fg=yellow>ALREADY PRESENT</>');
 
             return false;
@@ -185,6 +188,14 @@ class StarterPublishCommand extends Command
         $this->copy($files, $source, $file['destination']);
 
         return true;
+    }
+
+    /**
+     * @param  string|array<int, string>  $needle
+     */
+    protected function containsAnyNeedle(string $haystack, string|array $needle): bool
+    {
+        return array_any((array) $needle, fn ($value) => str_contains($haystack, $value));
     }
 
     /**

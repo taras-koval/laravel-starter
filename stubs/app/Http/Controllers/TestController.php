@@ -16,4 +16,10 @@ class TestController extends Controller
 
         return response()->json($timezones);
     }
+
+    public function store(): JsonResponse
+    {
+
+        return response()->json(['test store']);
+    }
 }

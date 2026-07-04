@@ -4,7 +4,9 @@ globs: **/*.php
 alwaysApply: false
 ---
 
-# PHP Conventions
+# PHP / Laravel Conventions
+
+## Enum Case Naming
 
 - Enum type names must end with `Enum`: `DriverStatusEnum`, `PaymentMethodEnum`.
 - Case names must be SCREAMING_SNAKE_CASE: `PENDING`, `ACTIVATED`, `DEACTIVATED`.
