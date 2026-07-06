@@ -26,6 +26,18 @@ class StarterPublishCommand extends Command
     ];
 
     /**
+     * Relative paths excluded from a mirrored directory, keyed by the directory's stub path.
+     * Use this for files within mirrored directories that need conditional publishing instead.
+     *
+     * @var array<string, array<int, string>>
+     */
+    protected array $directoryExclusions = [
+        'app' => [
+            'Http/Middleware/EnsureUser.php',
+        ],
+    ];
+
+    /**
      * Individual files always overwritten, keyed by stub path.
      *
      * @var array<string, string>
@@ -82,6 +94,12 @@ class StarterPublishCommand extends Command
             'needle' => 'Trusted Proxies',
             'label' => 'Trusted Proxies documentation',
         ],
+        [
+            'stub' => 'app/Http/Middleware/EnsureUser.php',
+            'destination' => 'app/Http/Middleware/EnsureUser.php',
+            'needle' => '!$request->user() instanceof User',
+            'label' => 'EnsureUser middleware',
+        ],
     ];
 
     /**
@@ -134,10 +152,15 @@ class StarterPublishCommand extends Command
             return 0;
         }
 
+        $excluded = $this->directoryExclusions[$stub] ?? [];
         $count = 0;
 
         foreach ($files->allFiles($source) as $file) {
             $relativePath = str_replace('\\', '/', $file->getRelativePathname());
+
+            if (in_array($relativePath, $excluded, true)) {
+                continue;
+            }
 
             $this->copy($files, $file->getPathname(), $destination . '/' . $relativePath);
 
