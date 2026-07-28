@@ -33,7 +33,6 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'), // ~\storage\app\private
-            'url' => env('APP_URL') . '/private-storage',
             'visibility' => 'private',
             'serve' => true,
             'throw' => true,
@@ -58,8 +57,7 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'visibility' => 'private',
-            'throw' => true,
+            'throw' => false,
             'report' => false,
         ],
 
