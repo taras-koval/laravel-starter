@@ -33,7 +33,7 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'), // ~\storage\app\private
-            'url' => env('APP_URL') . '/private-storage',
+            'url' => rtrim((string) env('APP_URL'), '/').'/private-storage',
             'visibility' => 'private',
             'serve' => true,
             'throw' => true,
@@ -43,7 +43,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'), // ~\storage\app\public
-            'url' => env('APP_URL') . '/storage',
+            'url' => rtrim((string) env('APP_URL'), '/').'/storage',
             'visibility' => 'public',
             'throw' => true,
             'report' => false,
