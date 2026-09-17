@@ -9,53 +9,23 @@ A development-only package that publishes and updates a shared set of Laravel st
 The full sequence for a brand-new API project:
 
 ```bash
-# 1. Create a new Laravel project
-composer global update laravel/installer --with-all-dependencies
-laravel new app --git && cd my-api
-
-# 2. Install the starter package
+# 1. Install the starter package
 composer require --dev taras-koval/laravel-starter
 
-# 3. Install the stub dependencies
+# 2. Install the stub dependencies
 composer require laravel/sanctum dedoc/scramble spatie/laravel-query-builder geoip2/geoip2 jenssegers/agent mcamara/laravel-localization
 
-# 4. Publish all starter files
+# 3. Publish all starter files
 php artisan starter:publish
 
-# 5. Run migrations
+# 4. Run migrations
 php artisan migrate
 
-# 6. Create the public storage symlink
+# 5. Create the public storage symlink
 php artisan storage:link
 
-# 7. Generate AI config files (if using Laravel Boost)
+# 6. Generate AI config files (if using Laravel Boost)
 php artisan boost:install
-```
-
-## Installation
-
-Install the package as a development dependency:
-
-```bash
-composer require --dev taras-koval/laravel-starter
-```
-
-### Local development
-
-When working on the package itself, register it as a path repository with a symlink so changes are reflected immediately without reinstalling, then require it:
-
-```json
-"repositories": [
-    {
-        "type": "path",
-        "url": "packages/laravel-starter",
-        "options": { "symlink": true }
-    }
-]
-```
-
-```bash
-composer require --dev taras-koval/laravel-starter
 ```
 
 ## Prerequisites
@@ -98,6 +68,21 @@ composer require mcamara/laravel-localization
 | `geoip2/geoip2`                | `^3.3`  | GeoIP session metadata           |
 | `jenssegers/agent`             | `^2.6`  | Device detection in sessions     |
 | `mcamara/laravel-localization` | `^2.4`  | Localized web routes             |
+
+## Environment configuration
+
+After installing the dependencies and running `starter:publish`, review `.env.example` and configure the corresponding values in `.env` before using the application.
+
+At minimum, configure:
+
+- `APP_URL` — the API application's public URL.
+- `FRONTEND_URL` — the URL of the frontend application.
+- `CORS_ALLOWED_ORIGINS` — comma-separated frontend origins allowed to make cross-origin requests. Use explicit origins when credentials are enabled; browsers reject `*` with credentials.
+- `SANCTUM_STATEFUL_DOMAINS` — frontend hosts that should use Sanctum's cookie-based SPA authentication.
+- `DB_*`, `SESSION_*`, `CACHE_*`, and `QUEUE_*` — infrastructure settings for the database, sessions, cache, and queues.
+- `MAIL_*` — mail transport and sender settings. With the default `log` mailer, messages are written to `storage/logs/mail.log`.
+- `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY` — MaxMind credentials required for GeoIP database updates.
+- `AWS_*` — credentials and endpoint settings when using S3-compatible storage.
 
 ## Usage
 
