@@ -20,6 +20,8 @@
     @endforeach
     <link rel="alternate" hreflang="x-default" href="{{ LaravelLocalization::getLocalizedURL(locale: 'en') }}">
 
+    <style>[x-cloak] { display: none !important; }</style>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex flex-col min-h-screen overflow-anchor-none text-zinc-800 antialiased">
