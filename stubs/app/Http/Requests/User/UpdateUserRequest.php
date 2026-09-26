@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
@@ -10,8 +11,7 @@ class UpdateUserRequest extends FormRequest
 {
     public function rules(): array
     {
-        $requiresCurrentPassword =
-            $this->filled('password') ||
+        $requiresCurrentPassword = $this->filled('password') ||
             ($this->filled('email') && $this->input('email') !== $this->user()->email);
 
         return [
@@ -21,5 +21,12 @@ class UpdateUserRequest extends FormRequest
             'password' => ['confirmed', 'different:current_password', Password::defaults()],
             'current_password' => [$requiresCurrentPassword ? 'required' : 'nullable', 'string', 'current_password'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if (is_string($this->input('email'))) {
+            $this->merge(['email' => Str::lower($this->input('email'))]);
+        }
     }
 }

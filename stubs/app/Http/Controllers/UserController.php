@@ -27,12 +27,12 @@ class UserController extends Controller
                 'email_verified_at' => null,
             ])->save();
             $user->sendEmailVerificationNotification();
-            $user->tokens()->where('id', '!=', $user->currentAccessToken()->id)->delete();
+            $user->revokeOtherTokens();
         }
 
         if ($request->has('password')) {
             $user->update(['password' => $request->validated('password')]);
-            $user->tokens()->where('id', '!=', $user->currentAccessToken()->id)->delete();
+            $user->revokeOtherTokens();
         }
 
         return UserResource::make($user);

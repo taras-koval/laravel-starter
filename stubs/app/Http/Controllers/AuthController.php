@@ -28,7 +28,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AuthController extends Controller
 {
-    private static ?string $dummyHash = null;
+    /**
+     * Bcrypt hash of a random string. Its cost (12) must match BCRYPT_ROUNDS,
+     * otherwise login timing for unknown emails differs from existing ones.
+     */
+    private const string DUMMY_PASSWORD_HASH = '$2y$12$gZVi.qTXjaUDjR5waNutHemUcNl7feZjjvEMgyXjlkbCqjMzF5onK';
 
     public function __construct(
         private readonly RequestMetadataService $requestMetadataService,
@@ -76,15 +80,10 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->validated('email'))->first();
 
-        if (!$user) {
-            // Prevent user enumeration via response-time differences.
-            self::$dummyHash ??= Hash::make('dummy-password-for-timing-attack-prevention');
-            Hash::check($request->validated('password'), self::$dummyHash);
-            event(new Failed('sanctum', null, $request->validated()));
-            throw ValidationException::withMessages(['email' => [__('auth.failed')]]);
-        }
+        // Always run exactly one hash check so unknown emails can't be detected by response time.
+        $isPasswordValid = Hash::check($request->validated('password'), $user->password ?? self::DUMMY_PASSWORD_HASH);
 
-        if (!Hash::check($request->validated('password'), $user->password)) {
+        if (!$user || !$isPasswordValid) {
             event(new Failed('sanctum', $user, $request->validated()));
             throw ValidationException::withMessages(['email' => [__('auth.failed')]]);
         }
@@ -181,7 +180,7 @@ class AuthController extends Controller
     public function sessions(Request $request): AnonymousResourceCollection
     {
         return SessionResource::collection(
-            $request->user()->tokens()->latest('last_used_at')->get(),
+            $request->user()->activeTokens()->latest('last_used_at')->get(),
         );
     }
 
@@ -207,10 +206,7 @@ class AuthController extends Controller
 
     public function logoutAll(Request $request): Response
     {
-        $user = $request->user();
-        $currentTokenId = $user->currentAccessToken()->id;
-
-        $user->tokens()->where('id', '!=', $currentTokenId)->delete();
+        $request->user()->revokeOtherTokens();
 
         return response()->noContent();
     }

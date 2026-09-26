@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\URL;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 /**
@@ -65,22 +66,44 @@ class AuthControllerTest extends TestCase
         $this->assertSame('Linux', $token->platform);
     }
 
-    public function test_register_without_device_name_generates_automatic_name(): void
+    public function test_register_rejects_existing_email_regardless_of_case(): void
     {
-        $payload = [
+        User::factory()->create(['email' => 'user@example.com']);
+
+        $this->postJson(route('register'), [
             'name' => 'Test User',
-            'email' => 'user@example.com',
+            'email' => 'User@Example.com',
             'password' => '1234',
             'password_confirmation' => '1234',
-        ];
+        ])->assertUnprocessable()->assertJsonValidationErrors('email');
 
-        $response = $this->withHeaders([
+        $this->assertSame(1, User::count());
+    }
+
+    public function test_register_normalizes_email_to_lowercase(): void
+    {
+        $this->postJson(route('register'), [
+            'name' => 'Test User',
+            'email' => '  User@Example.COM ',
+            'password' => '1234',
+            'password_confirmation' => '1234',
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('users', ['email' => 'user@example.com']);
+        $this->assertDatabaseMissing('users', ['email' => 'User@Example.COM']);
+    }
+
+    public function test_login_without_device_name_generates_automatic_name(): void
+    {
+        $user = User::factory()->create(['email' => 'user@example.com']);
+
+        $this->withHeaders([
             'User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-        ])->postJson(route('register'), $payload);
+        ])->postJson(route('login'), [
+            'email' => 'user@example.com',
+            'password' => 'password',
+        ])->assertOk();
 
-        $response->assertCreated();
-
-        $user = User::where('email', 'user@example.com')->firstOrFail();
         $token = $user->tokens()->first();
 
         $this->assertSame('Safari on iOS (iPhone)', $token->name);
@@ -88,23 +111,32 @@ class AuthControllerTest extends TestCase
         $this->assertSame('iPhone', $token->device);
     }
 
-    public function test_register_without_device_name_falls_back_to_device_type_for_desktop(): void
+    public function test_login_without_device_name_falls_back_to_device_type_for_desktop(): void
     {
-        $response = $this->withHeaders([
+        $user = User::factory()->create(['email' => 'user@example.com']);
+
+        $this->withHeaders([
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        ])->postJson(route('register'), [
-            'name' => 'Test User',
+        ])->postJson(route('login'), [
             'email' => 'user@example.com',
-            'password' => '1234',
-            'password_confirmation' => '1234',
-        ]);
+            'password' => 'password',
+        ])->assertOk();
 
-        $response->assertCreated();
+        $token = $user->tokens()->first();
 
-        $token = User::where('email', 'user@example.com')->firstOrFail()->tokens()->first();
         $this->assertSame('Chrome on Windows (Desktop)', $token->name);
         $this->assertSame('desktop', $token->device_type);
         $this->assertNull($token->device);
+    }
+
+    public function test_login_email_is_case_insensitive(): void
+    {
+        User::factory()->create(['email' => 'user@example.com']);
+
+        $this->postJson(route('login'), [
+            'email' => 'USER@Example.com',
+            'password' => 'password',
+        ])->assertOk();
     }
 
     public function test_register_with_custom_timezone(): void
@@ -424,6 +456,43 @@ class AuthControllerTest extends TestCase
         Event::assertDispatched(Login::class);
     }
 
+    public function test_guest_auth_routes_have_independent_rate_limits(): void
+    {
+        Notification::fake();
+
+        foreach (range(1, 6) as $ignored) {
+            $this->postJson(route('forgot-password'), ['email' => 'nobody@example.com'])->assertOk();
+        }
+
+        $this->postJson(route('forgot-password'), ['email' => 'nobody@example.com'])->assertStatus(429);
+
+        $this->postJson(route('register'), [
+            'name' => 'Test User',
+            'email' => 'user@example.com',
+            'password' => '1234',
+            'password_confirmation' => '1234',
+        ])->assertCreated();
+    }
+
+    public function test_session_management_is_not_limited_to_six_requests_per_minute(): void
+    {
+        $user = User::factory()->create();
+        $current = $user->createToken('current-device');
+        $others = collect(range(1, 7))->map(fn (int $i) => $user->createToken("device-$i"));
+
+        $this->withHeader('Authorization', 'Bearer ' . $current->plainTextToken)
+            ->getJson(route('sessions.index'))
+            ->assertOk();
+
+        foreach ($others as $other) {
+            $this->withHeader('Authorization', 'Bearer ' . $current->plainTextToken)
+                ->deleteJson(route('sessions.destroy', ['id' => $other->accessToken->id]))
+                ->assertNoContent();
+        }
+
+        $this->assertSame(1, $user->tokens()->count());
+    }
+
     public function test_successful_login_fires_attempting_and_login_events(): void
     {
         Event::fake([Attempting::class, Login::class, Failed::class]);
@@ -535,6 +604,40 @@ class AuthControllerTest extends TestCase
         $sessions = collect($response->json('data'))->keyBy('id');
         $this->assertTrue($sessions[$current->accessToken->id]['is_current']);
         $this->assertFalse($sessions[$other->accessToken->id]['is_current']);
+    }
+
+    public function test_session_list_excludes_expired_tokens(): void
+    {
+        config()->set('sanctum.expiration', 30 * 24 * 60); // 30 days
+
+        $user = User::factory()->create();
+        $current = $user->createToken('current-device');
+
+        $tooOld = $user->createToken('too-old');
+        $tooOld->accessToken->forceFill(['created_at' => now()->subDays(31)])->save();
+
+        $pastExpiresAt = $user->createToken('past-expires-at', ['*'], now()->subMinute());
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $current->plainTextToken)
+            ->getJson(route('sessions.index'));
+
+        $response->assertOk()->assertJsonCount(1, 'data');
+        $this->assertSame($current->accessToken->id, $response->json('data.0.id'));
+        $this->assertDatabaseHas('personal_access_tokens', ['id' => $tooOld->accessToken->id]);
+        $this->assertDatabaseHas('personal_access_tokens', ['id' => $pastExpiresAt->accessToken->id]);
+    }
+
+    public function test_logout_all_without_persisted_current_token_revokes_every_token(): void
+    {
+        $user = User::factory()->create();
+        $user->createToken('device-a');
+        $user->createToken('device-b');
+
+        Sanctum::actingAs($user);
+
+        $this->postJson(route('logout-all'))->assertNoContent();
+
+        $this->assertSame(0, $user->tokens()->count());
     }
 
     public function test_session_list_does_not_include_other_users_tokens(): void
