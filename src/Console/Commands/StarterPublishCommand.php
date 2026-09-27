@@ -58,8 +58,6 @@ class StarterPublishCommand extends Command
         'config/services.php' => 'config/services.php',
         '.env.example' => '.env.example',
         '.gitignore' => '.gitignore',
-        'boost.json' => 'boost.json',
-        'package.json' => 'package.json',
         'phpunit.xml' => 'phpunit.xml',
         'pint.json' => 'pint.json',
     ];
@@ -87,12 +85,6 @@ class StarterPublishCommand extends Command
             'destination' => 'routes/console.php',
             'needle' => "Schedule::command('app:update-geoip-database')",
             'label' => 'scheduled GeoIP update command',
-        ],
-        [
-            'stub' => 'README.md',
-            'destination' => 'README.md',
-            'needle' => 'Trusted Proxies',
-            'label' => 'Trusted Proxies documentation',
         ],
         [
             'stub' => 'app/Http/Middleware/EnsureUser.php',

@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('app:update-geoip-database')->weekly();
+Schedule::command('sanctum:prune-expired --hours=24')->daily();
