@@ -15,6 +15,8 @@ composer require --dev taras-koval/laravel-starter
 # 2. Install the stub dependencies
 composer require laravel/sanctum dedoc/scramble spatie/laravel-query-builder geoip2/geoip2 jenssegers/agent mcamara/laravel-localization
 
+npm install -D alpinejs@latest
+
 # 3. Publish all starter files
 php artisan starter:publish
 
