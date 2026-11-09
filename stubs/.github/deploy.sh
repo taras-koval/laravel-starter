@@ -148,6 +148,17 @@ step "Restarting queue workers"
 php artisan queue:restart
 ok "queue restart signal sent"
 
+# Horizon's master process keeps the old code and config/horizon.php until terminated;
+# the process monitor (Supervisor/systemd) is expected to start it again.
+if artisan_exists "horizon:terminate"; then
+    if php artisan horizon:status 2>/dev/null | grep -qi "running"; then
+        php artisan horizon:terminate
+        ok "Horizon terminate signal sent"
+    else
+        skip "Horizon is not running"
+    fi
+fi
+
 # ============================================================
 # Permissions
 # ============================================================

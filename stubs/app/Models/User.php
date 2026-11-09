@@ -5,6 +5,8 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -13,27 +15,15 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
 
+#[Fillable(['name', 'email', 'password', 'timezone'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable // implements MustVerifyEmail
 {
     use HasApiTokens;
-
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-
     use MustVerifyEmailTrait;
     use Notifiable;
-
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'timezone',
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
 
     protected $attributes = [
         'timezone' => 'UTC',
