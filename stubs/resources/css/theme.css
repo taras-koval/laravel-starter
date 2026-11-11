@@ -16,7 +16,10 @@
  */
 
 @theme {
-    --font-sans: 'Instrument Sans', system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    /* --font-sans: 'Instrument Sans', 'Instrument Sans fallback', system-ui, sans-serif; */
+    /* --font-heading: 'Instrument Sans', 'Instrument Sans fallback', system-ui, sans-serif; */
+    --font-sans: 'Inter', 'Inter fallback', system-ui, sans-serif;
+    --font-heading: 'Manrope', 'Manrope fallback', system-ui, sans-serif;
 
     --breakpoint-sm: 30rem;
     --breakpoint-2xl: initial;

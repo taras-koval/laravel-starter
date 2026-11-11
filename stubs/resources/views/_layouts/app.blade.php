@@ -7,21 +7,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>
-        @hasSection('title')
-            @yield('title') | {{ config('app.name') }}
-        @else
-            {{ config('app.name') }}
-        @endif
-    </title>
+    @php
+        $sectionTitle = trim($__env->yieldContent('title'));
+        $pageTitle = filled($sectionTitle) ? $sectionTitle . ' | ' . config('app.name') : config('app.name');
+        $pageDescription = trim($__env->yieldContent('description'));
+    @endphp
+
+    <title>{{ $pageTitle }}</title>
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    @if(filled($pageDescription))
+        <meta name="description" content="{{ $pageDescription }}">
+        <meta property="og:description" content="{{ $pageDescription }}">
+    @endif
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:locale" content="{{ LaravelLocalization::getCurrentLocaleRegional() }}">
+    {{--<meta property="og:image" content="{{ asset('og.jpg') }}">--}}
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+
+    {{--<link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">--}}
 
     @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
         <link rel="alternate" hreflang="{{ $localeCode }}" href="{{ LaravelLocalization::getLocalizedURL($localeCode) }}">
     @endforeach
-    <link rel="alternate" hreflang="x-default" href="{{ LaravelLocalization::getLocalizedURL(locale: 'en') }}">
+    <link rel="alternate" hreflang="x-default" href="{{ LaravelLocalization::getLocalizedURL(locale: LaravelLocalization::getDefaultLocale()) }}">
 
     <style>[x-cloak] { display: none !important; }</style>
 
+    @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex flex-col min-h-screen overflow-anchor-none text-zinc-800 antialiased">

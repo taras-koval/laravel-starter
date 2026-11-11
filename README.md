@@ -12,21 +12,22 @@ The full sequence for a brand-new API project:
 # 1. Install the starter package
 composer require --dev taras-koval/laravel-starter
 
-# 2. Install the stub dependencies
+# 2. Install the backend dependencies
 composer require laravel/sanctum dedoc/scramble spatie/laravel-query-builder geoip2/geoip2 jenssegers/agent mcamara/laravel-localization
 
-npm install -D alpinejs@latest
+# 3. Install the frontend dependencies
+npm install -D @tailwindcss/vite alpinejs axios concurrently fontaine laravel-vite-plugin tailwindcss vite
 
-# 3. Publish all starter files
+# 4. Publish all starter files
 php artisan starter:publish
 
-# 4. Run migrations
+# 5. Run migrations
 php artisan migrate
 
-# 5. Create the public storage symlink
+# 6. Create the public storage symlink
 php artisan storage:link
 
-# 6. Generate AI config files (if using Laravel Boost)
+# 7. Generate AI config files (if using Laravel Boost)
 php artisan boost:install
 ```
 
@@ -112,8 +113,7 @@ The command uses three publishing strategies, described below.
 | `config/app.php`, `config/auth.php`, `config/cache.php`                       |                                                                                                                 |
 | `config/cors.php`, `config/filesystems.php`, `config/logging.php`             |                                                                                                                 |
 | `config/laravellocalization.php`, `config/sanctum.php`, `config/services.php` |                                                                                                                 |
-| `.env.example`, `.gitignore`, `package.json`, `phpunit.xml`, `pint.json`      | Root config files                                                                                               |
-| `boost.json`                                                                  | Laravel Boost config (regenerate guidelines via `php artisan boost:install`)                                    |
+| `.env.example`, `.gitignore`, `phpunit.xml`, `pint.json`, `vite.config.js`    | Root config files                                                                                               |
 | `.cursor/rules/`                                                              | Cursor AI rules (enum naming, etc.) — committed to the project, safe to extend                                  |
 | `.github/`                                                                    | Deploy workflows and `deploy.sh` (auto-deploy disabled by default — see [CI/CD auto-deploy](#cicd-auto-deploy)) |
 
@@ -146,7 +146,7 @@ php artisan storage:link
 
 ### Laravel Boost
 
-The starter ships `boost.json` (the shared Boost config), but the generated AI guidelines and MCP configs are **not** published — they embed machine-specific absolute paths and version-pinned guidelines, and are git-ignored (`.cursor/`, `.ai/`, `AGENTS.md`). Regenerate them locally after publishing:
+The generated AI guidelines and MCP configs are **not** published — they embed machine-specific absolute paths and version-pinned guidelines, and are git-ignored (`.cursor/`, `.ai/`, `AGENTS.md`). Regenerate them locally after publishing:
 
 ```bash
 php artisan boost:install

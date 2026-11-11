@@ -58,6 +58,7 @@ class StarterPublishCommand extends Command
         'config/services.php' => 'config/services.php',
         '.env.example' => '.env.example',
         '.gitignore' => '.gitignore',
+        'vite.config.js' => 'vite.config.js',
         'phpunit.xml' => 'phpunit.xml',
         'pint.json' => 'pint.json',
     ];
