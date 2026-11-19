@@ -35,7 +35,7 @@
     {{--<meta name="twitter:card" content="summary_large_image">--}}
     {{--<meta name="twitter:image" content="{{ asset('og.jpg') }}?v={{ filemtime(public_path('og.jpg')) }}">--}}
 
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    {{--<link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">--}}
 
     @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
         <link rel="alternate" hreflang="{{ $localeCode }}" href="{{ LaravelLocalization::getLocalizedURL($localeCode, url()->current()) }}">

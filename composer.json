@@ -23,7 +23,8 @@
         "spatie/laravel-query-builder": "^7.2 — Required for includable relations feature",
         "geoip2/geoip2": "^3.3 — Required for GeoIP session metadata",
         "jenssegers/agent": "^2.6 — Required for device detection in sessions",
-        "mcamara/laravel-localization": "^2.4 — Required for localized web routes"
+        "mcamara/laravel-localization": "^2.4 — Required for localized web routes",
+        "resend/resend-laravel": "^1.7 — Required for Resend mail driver"
     },
     "autoload": {
         "psr-4": {
