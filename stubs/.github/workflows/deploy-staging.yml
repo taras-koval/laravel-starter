@@ -5,9 +5,9 @@ name: Deploy Staging
 #   2. Add the repository secrets: SSH_HOST, SSH_USERNAME, SSH_PORT, SSH_KEY.
 #   3. Uncomment the `push` trigger below.
 on:
-  # push:
-  #   branches:
-  #     - develop
+#  push:
+#    branches:
+#      - develop
   workflow_dispatch:
 
 env:

@@ -13,7 +13,7 @@ The full sequence for a brand-new API project:
 composer require --dev taras-koval/laravel-starter
 
 # 2. Install the backend dependencies
-composer require laravel/sanctum dedoc/scramble spatie/laravel-query-builder geoip2/geoip2 jenssegers/agent mcamara/laravel-localization
+composer require laravel/sanctum dedoc/scramble spatie/laravel-query-builder geoip2/geoip2 jenssegers/agent mcamara/laravel-localization resend/resend-laravel
 
 # 3. Install the frontend dependencies
 npm install -D @tailwindcss/vite alpinejs axios concurrently fontaine laravel-vite-plugin tailwindcss vite
@@ -31,47 +31,6 @@ php artisan storage:link
 php artisan boost:install
 ```
 
-## Prerequisites
-
-The published stubs reference third-party packages. The starter package **does not** require them itself — they are declared under `suggest` so they remain explicit in the consuming project's `composer.json`. Install them **before** running `starter:publish`.
-
-Install everything at once:
-
-```bash
-composer require laravel/sanctum dedoc/scramble spatie/laravel-query-builder geoip2/geoip2 jenssegers/agent mcamara/laravel-localization
-```
-
-Or install only what a specific feature requires:
-
-```bash
-# API token authentication (User model, AuthController, SessionResource)
-composer require laravel/sanctum
-
-# OpenAPI documentation generation
-composer require dedoc/scramble
-
-# Includable relations feature
-composer require spatie/laravel-query-builder
-
-# GeoIP session metadata (RequestMetadataService, UpdateGeoIpDatabaseCommand)
-composer require geoip2/geoip2
-
-# Device detection in sessions (RequestMetadataService)
-composer require jenssegers/agent
-
-# Localized web routes
-composer require mcamara/laravel-localization
-```
-
-| Package                        | Version | Purpose                          |
-|--------------------------------|---------|----------------------------------|
-| `laravel/sanctum`              | `^4.3`  | API token authentication         |
-| `dedoc/scramble`               | `^0.13` | OpenAPI documentation generation |
-| `spatie/laravel-query-builder` | `^7.2`  | Includable relations feature     |
-| `geoip2/geoip2`                | `^3.3`  | GeoIP session metadata           |
-| `jenssegers/agent`             | `^2.6`  | Device detection in sessions     |
-| `mcamara/laravel-localization` | `^2.4`  | Localized web routes             |
-
 ## Environment configuration
 
 After installing the dependencies and running `starter:publish`, review `.env.example` and configure the corresponding values in `.env` before using the application.
@@ -84,8 +43,15 @@ At minimum, configure:
 - `SANCTUM_STATEFUL_DOMAINS` — frontend hosts that should use Sanctum's cookie-based SPA authentication.
 - `DB_*`, `SESSION_*`, `CACHE_*`, and `QUEUE_*` — infrastructure settings for the database, sessions, cache, and queues.
 - `MAIL_*` — mail transport and sender settings. With the default `log` mailer, messages are written to `storage/logs/mail.log`.
+- `RESEND_API_KEY` — API key for the Resend email service.
 - `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY` — MaxMind credentials required for GeoIP database updates.
 - `AWS_*` — credentials and endpoint settings when using S3-compatible storage.
+
+To configure mail with [Resend](https://resend.com), give this prompt to an AI agent:
+
+```text
+Fetch and follow the instructions at https://resend.com/setup.md to set up Resend for me.
+```
 
 ## Usage
 

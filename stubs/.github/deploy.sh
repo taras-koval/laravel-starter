@@ -126,12 +126,22 @@ if artisan_exists "filament:optimize-clear"; then
     php artisan filament:optimize-clear --quiet
     ok "Filament cache cleared"
 fi
-php artisan optimize
+# Not `php artisan optimize`: it also runs route:cache, which breaks
+# mcamara/laravel-localization (non-default locales return 404).
+php artisan config:cache
+php artisan event:cache
+php artisan view:cache
+if artisan_exists "route:trans:cache"; then
+    skip "route cache (mcamara/laravel-localization is installed)"
+else
+    php artisan route:cache
+    ok "routes cached"
+fi
 if artisan_exists "filament:optimize"; then
     php artisan filament:optimize --quiet
     ok "Filament components and icons cached"
 fi
-ok "config, routes, views, app cache cleared & rebuilt"
+ok "config, events, views cached"
 
 # ============================================================
 # Custom project commands (non-blocking)

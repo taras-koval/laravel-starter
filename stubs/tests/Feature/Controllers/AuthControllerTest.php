@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Sleep;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -459,6 +460,8 @@ class AuthControllerTest extends TestCase
     public function test_guest_auth_routes_have_independent_rate_limits(): void
     {
         Notification::fake();
+        // The password broker pads every reset request to 200 ms, which adds up over several requests.
+        Sleep::fake();
 
         foreach (range(1, 6) as $ignored) {
             $this->postJson(route('forgot-password'), ['email' => 'nobody@example.com'])->assertOk();

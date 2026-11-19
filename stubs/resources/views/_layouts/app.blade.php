@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
 
     <meta name="application-name" content="{{ config('app.name') }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @php
@@ -26,18 +26,21 @@
     <meta property="og:title" content="{{ $pageTitle }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:locale" content="{{ LaravelLocalization::getCurrentLocaleRegional() }}">
-    {{--<meta property="og:image" content="{{ asset('og.jpg') }}">--}}
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    {{--<meta property="og:image" content="{{ asset('og.jpg') }}?v={{ filemtime(public_path('og.jpg')) }}">--}}
+    {{--<meta property="og:image:type" content="image/jpeg">--}}
+    {{--<meta property="og:image:width" content="1200">--}}
+    {{--<meta property="og:image:height" content="630">--}}
+    {{--<meta property="og:image:alt" content="{{ config('app.name') }}">--}}
 
-    <meta name="twitter:card" content="summary_large_image">
+    {{--<meta name="twitter:card" content="summary_large_image">--}}
+    {{--<meta name="twitter:image" content="{{ asset('og.jpg') }}?v={{ filemtime(public_path('og.jpg')) }}">--}}
 
-    {{--<link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">--}}
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
 
     @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
-        <link rel="alternate" hreflang="{{ $localeCode }}" href="{{ LaravelLocalization::getLocalizedURL($localeCode) }}">
+        <link rel="alternate" hreflang="{{ $localeCode }}" href="{{ LaravelLocalization::getLocalizedURL($localeCode, url()->current()) }}">
     @endforeach
-    <link rel="alternate" hreflang="x-default" href="{{ LaravelLocalization::getLocalizedURL(locale: LaravelLocalization::getDefaultLocale()) }}">
+    <link rel="alternate" hreflang="x-default" href="{{ LaravelLocalization::getLocalizedURL(LaravelLocalization::getDefaultLocale(), url()->current()) }}">
 
     <style>[x-cloak] { display: none !important; }</style>
 
