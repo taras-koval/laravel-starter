@@ -11,6 +11,7 @@ BRANCH="${DEPLOY_BRANCH:-main}"
 
 APP_USER="ubuntu"
 APP_GROUP="www-data"
+WEB_USER="www-data"  # user php-fpm runs as
 WRITABLE_DIRS="storage bootstrap/cache lang"
 DIR_PERMS="2775"  # shared-server: 2770
 FILE_PERMS="664"  # shared-server: 660
@@ -37,7 +38,17 @@ step() { echo -e "\n\033[1;34m→ $1\033[0m"; }
 ok()   { echo "  ✓ $1"; }
 skip() { echo "  – skipped: $1"; }
 
-artisan_exists() { php artisan list --raw 2>/dev/null | grep -q "^$1 "; }
+# Runs artisan as the web user, so files it creates in storage/ and bootstrap/cache
+# (compiled views, caches, logs) are owned by php-fpm's user. Otherwise php-fpm fails on
+# them with "touch(): Uptime failed: Operation not permitted" while the deploy is running.
+www_artisan() { sudo -u "$WEB_USER" php artisan "$@"; }
+
+artisan_exists() { www_artisan list --raw 2>/dev/null | grep -q "^$1 "; }
+
+# Gives the deploy user the whole tree except storage/, which stays owned by the web user.
+fix_repo_ownership() {
+    sudo find . -path ./storage -prune -o -exec chown -h "$APP_USER:$APP_GROUP" {} +
+}
 
 cd "$APP_DIR"
 
@@ -49,13 +60,13 @@ echo -e "\033[1;33m● URL:         $APP_URL\033[0m"
 # Maintenance mode
 # ============================================================
 step "Entering maintenance mode"
-(php artisan down --retry=15) || true
+(www_artisan down --retry=15) || true
 
 # ============================================================
 # Fix ownership before git (cron/www-data may have changed files)
 # ============================================================
 step "Fixing ownership for git"
-sudo chown -R "$APP_USER:$APP_GROUP" .
+fix_repo_ownership
 
 # ============================================================
 # Pull source
@@ -93,10 +104,10 @@ fi
 # Database
 # ============================================================
 step "Running database migrations"
-php artisan migrate --force
+www_artisan migrate --force
 ok "migrations complete"
 
-php artisan auth:clear-resets
+www_artisan auth:clear-resets
 ok "expired password reset tokens cleared"
 
 # ============================================================
@@ -114,31 +125,36 @@ fi
 # Storage symlink
 # ============================================================
 step "Ensuring storage symlink"
-php artisan storage:link 2>/dev/null || true
+if [ -L public/storage ]; then
+    skip "public/storage link already exists"
+else
+    php artisan storage:link
+    ok "storage link created"
+fi
 
 # ============================================================
 # Cache
 # ============================================================
 step "Rebuilding cache"
-php artisan optimize:clear
-php artisan cache:clear
+www_artisan optimize:clear
+www_artisan cache:clear
 if artisan_exists "filament:optimize-clear"; then
-    php artisan filament:optimize-clear --quiet
+    www_artisan filament:optimize-clear --quiet
     ok "Filament cache cleared"
 fi
 # Not `php artisan optimize`: it also runs route:cache, which breaks
 # mcamara/laravel-localization (non-default locales return 404).
-php artisan config:cache
-php artisan event:cache
-php artisan view:cache
+www_artisan config:cache
+www_artisan event:cache
+www_artisan view:cache
 if artisan_exists "route:trans:cache"; then
     skip "route cache (mcamara/laravel-localization is installed)"
 else
-    php artisan route:cache
+    www_artisan route:cache
     ok "routes cached"
 fi
 if artisan_exists "filament:optimize"; then
-    php artisan filament:optimize --quiet
+    www_artisan filament:optimize --quiet
     ok "Filament components and icons cached"
 fi
 ok "config, events, views cached"
@@ -148,21 +164,21 @@ ok "config, events, views cached"
 # ============================================================
 step "Running project-specific tasks"
 if artisan_exists "app:update-geoip-database"; then
-    (php artisan app:update-geoip-database) || skip "GeoIP update failed (non-critical)"
+    (www_artisan app:update-geoip-database) || skip "GeoIP update failed (non-critical)"
 fi
 
 # ============================================================
 # Queue workers
 # ============================================================
 step "Restarting queue workers"
-php artisan queue:restart
+www_artisan queue:restart
 ok "queue restart signal sent"
 
 # Horizon's master process keeps the old code and config/horizon.php until terminated;
 # the process monitor (Supervisor/systemd) is expected to start it again.
 if artisan_exists "horizon:terminate"; then
-    if php artisan horizon:status 2>/dev/null | grep -qi "running"; then
-        php artisan horizon:terminate
+    if www_artisan horizon:status 2>/dev/null | grep -qi "running"; then
+        www_artisan horizon:terminate
         ok "Horizon terminate signal sent"
     else
         skip "Horizon is not running"
@@ -173,7 +189,7 @@ fi
 # Permissions
 # ============================================================
 step "Fixing permissions"
-sudo chown -R "$APP_USER:$APP_GROUP" .
+fix_repo_ownership
 
 for dir in $WRITABLE_DIRS; do
     if [ -d "$dir" ]; then
@@ -201,7 +217,7 @@ ok "Nginx reloaded"
 # Go live
 # ============================================================
 step "Exiting maintenance mode"
-php artisan up
+www_artisan up
 
 step "Health check"
 HTTP_STATUS=$(curl -so /dev/null -w "%{http_code}" "$APP_URL")
