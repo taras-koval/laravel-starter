@@ -67,32 +67,32 @@ The command uses three publishing strategies, described below.
 
 ### Overwritten (always replaced)
 
-| Target                                                                        | Notes                                                                                                           |
-|-------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| `app/`                                                                        | Whole directory: controllers, models, requests, resources, services, commands                                   |
-| `resources/`                                                                  | CSS, JS, and Blade views (welcome, error pages, layouts)                                                        |
-| `tests/`                                                                      | Feature and unit tests for the published controllers (`TestCase`, auth, user, example)                          |
-| `bootstrap/app.php`                                                           | Routing and middleware config (registers `routes/auth.php` and `throttleApi()`)                                 |
-| `routes/auth.php`                                                             | Starter API routes                                                                                              |
-| `database/factories/UserFactory.php`                                          |                                                                                                                 |
-| `database/migrations/0001_01_01_000000_create_users_table.php`                |                                                                                                                 |
-| `config/app.php`, `config/auth.php`, `config/cache.php`                       |                                                                                                                 |
-| `config/cors.php`, `config/filesystems.php`, `config/logging.php`             |                                                                                                                 |
-| `config/laravellocalization.php`, `config/sanctum.php`, `config/services.php` |                                                                                                                 |
-| `.env.example`, `.gitignore`, `phpunit.xml`, `pint.json`, `vite.config.js`    | Root config files                                                                                               |
-| `.cursor/rules/`                                                              | Cursor AI rules (enum naming, etc.) — committed to the project, safe to extend                                  |
-| `.github/`                                                                    | Deploy workflows and `deploy.sh` (auto-deploy disabled by default — see [CI/CD auto-deploy](#cicd-auto-deploy)) |
+| Target                                                                        | Notes                                                                                                               |
+|-------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `app/`                                                                        | Whole directory except `Http/Middleware/EnsureUser.php` (see [Copied only when missing](#copied-only-when-missing)) |
+| `resources/`                                                                  | CSS, JS, and Blade views (welcome, error pages, layouts)                                                            |
+| `tests/`                                                                      | Feature and unit tests for the published controllers (`TestCase`, auth, user, example)                              |
+| `bootstrap/app.php`                                                           | Routing and middleware config (registers `routes/auth.php` and `throttleApi()`)                                     |
+| `routes/auth.php`                                                             | Starter API routes                                                                                                  |
+| `database/factories/UserFactory.php`                                          |                                                                                                                     |
+| `database/migrations/0001_01_01_000000_create_users_table.php`                |                                                                                                                     |
+| `config/app.php`, `config/auth.php`, `config/cache.php`                       |                                                                                                                     |
+| `config/cors.php`, `config/filesystems.php`, `config/logging.php`             |                                                                                                                     |
+| `config/laravellocalization.php`, `config/sanctum.php`, `config/services.php` |                                                                                                                     |
+| `.env.example`, `.gitignore`, `phpunit.xml`, `pint.json`, `vite.config.js`    | Root config files                                                                                                   |
+| `.cursor/rules/`                                                              | Cursor AI rules (enum naming, etc.) — committed to the project, safe to extend                                      |
+| `.github/`                                                                    | Deploy workflows and `deploy.sh` (auto-deploy disabled by default — see [CI/CD auto-deploy](#cicd-auto-deploy))     |
 
 `bootstrap/app.php` is overwritten wholesale, so it already registers `routes/auth.php` (under the `api` middleware group and `/api` prefix). Keep your own application routes in the host-owned `routes/api.php`; the starter routes live in the standalone, overwritable `routes/auth.php`.
 
 ### Copied only when missing
 
-| Target               | Condition                                                                                                                     |
-|----------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| `routes/api.php`     | Copied only when the file does not already exist; otherwise left untouched                                                    |
-| `routes/web.php`     | Copied only when the file does not already contain `LaravelLocalization::setLocale()`; otherwise left untouched               |
-| `routes/console.php` | Copied only when the file does not already contain `Schedule::command('app:update-geoip-database')`; otherwise left untouched |
-| `README.md`          | Copied only when the file does not already contain `Trusted Proxies`; otherwise left untouched                                |
+| Target                               | Condition                                                                                                                     |
+|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| `routes/api.php`                     | Copied only when the file contains neither `Route::get('/test'` nor `Route::get('/user'`; otherwise left untouched            |
+| `routes/web.php`                     | Copied only when the file does not already contain `LaravelLocalization::setLocale()`; otherwise left untouched               |
+| `routes/console.php`                 | Copied only when the file does not already contain `Schedule::command('app:update-geoip-database')`; otherwise left untouched |
+| `app/Http/Middleware/EnsureUser.php` | Copied only when the file does not already contain `!$request->user() instanceof User`; otherwise left untouched              |
 
 ### Migrations (published with a fresh timestamp)
 
