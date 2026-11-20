@@ -29,6 +29,12 @@ php artisan storage:link
 
 # 7. Generate AI config files (if using Laravel Boost)
 php artisan boost:install
+
+# 8. Build the code knowledge graph (if using Graphify; run from the project root, hooks need a git repository)
+graphify extract . --code-only
+graphify cluster-only . --no-label
+graphify hook install
+graphify cursor install
 ```
 
 ## Environment configuration
@@ -171,6 +177,62 @@ If you prefer to copy the MCP configs manually instead of running the installer,
     }
 }
 ```
+
+### Graphify (code knowledge graph)
+
+Graphify turns the project's code into a knowledge graph that an AI agent can query instead of grepping through files. The graph is stored in `graphify-out/`, which the published `.gitignore` already excludes. This section assumes the `graphify` CLI is installed globally.
+
+#### First-time setup
+
+Run once per project clone, from the project root, after `starter:publish` and `git init`:
+
+```bash
+graphify extract . --code-only
+graphify cluster-only . --no-label
+graphify hook install
+graphify cursor install
+```
+
+| Command                              | What it does                                                                                           |
+|--------------------------------------|--------------------------------------------------------------------------------------------------------|
+| `graphify extract . --code-only`     | Parses the code locally and builds the graph. No LLM and no API key.                                   |
+| `graphify cluster-only . --no-label` | Groups the graph into communities and writes `graphify-out/GRAPH_REPORT.md` and `graph.html`.          |
+| `graphify hook install`              | Installs git hooks that rebuild the graph automatically (hooks are per clone, not shared via git).     |
+| `graphify cursor install`            | Writes `.cursor/rules/graphify.mdc` (git-ignored) so the agent queries the graph before reading files. |
+
+The graph, the hooks, and the Cursor rule are local to each machine and are not committed, because they only work where Graphify is installed. `hook install` also appends a `merge=graphify` line to `.gitattributes`; since `graphify-out/` is git-ignored, it has no effect and you can leave it uncommitted (`git checkout -- .gitattributes`). For agents other than Cursor, use the matching command from `graphify --help` (for example `graphify claude install`).
+
+#### During development
+
+Nothing to run: the hooks refresh the graph after every commit, branch switch, pull, merge, and rebase.
+
+The only exception is uncommitted work. To let the agent see it, refresh the graph manually:
+
+```bash
+graphify update .
+```
+
+Use `graphify update . --force` after a refactor that deleted a lot of code, and `graphify watch .` to rebuild continuously while you work.
+
+#### Using the graph
+
+The agent runs these on its own once the Cursor rule is installed. You can run them too; replace the placeholders with class or method names from your project:
+
+| Command                        | Purpose                                                 |
+|--------------------------------|---------------------------------------------------------|
+| `graphify query "<question>"`  | Part of the graph relevant to a question                |
+| `graphify path "<A>" "<B>"`    | Shortest dependency path between two symbols            |
+| `graphify explain "<symbol>"`  | Plain-language description of a node and its neighbors  |
+| `graphify affected "<symbol>"` | What breaks if this symbol changes                      |
+| `graphify god-nodes --top 10`  | The most connected classes (architectural hubs)         |
+
+Open `graphify-out/graph.html` in a browser for a visual overview.
+
+#### Notes
+
+- `--code-only` indexes only source code (classes, methods, and the imports, calls, and inheritance between them). Files ignored by `.gitignore` are skipped; add a `.graphifyignore` to exclude anything else.
+- To also index docs and other non-code files, run `graphify extract .` with a backend API key set (for example `ANTHROPIC_API_KEY`), or `/graphify .` from the agent. The automatic hooks refresh code only, not docs.
+- `graphify cluster-only . --no-label` keeps placeholder names like `Community 3`. Drop `--no-label` (with an API key) to have an LLM name them.
 
 ## Trusted Proxies
 
