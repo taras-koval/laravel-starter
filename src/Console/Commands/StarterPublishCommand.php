@@ -93,6 +93,12 @@ class StarterPublishCommand extends Command
             'needle' => '!$request->user() instanceof User',
             'label' => 'EnsureUser middleware',
         ],
+        [
+            'stub' => '.cursor/mcp.json',
+            'destination' => '.cursor/mcp.json',
+            'needle' => '"mcpServers"',
+            'label' => 'MCP server config',
+        ],
     ];
 
     /**

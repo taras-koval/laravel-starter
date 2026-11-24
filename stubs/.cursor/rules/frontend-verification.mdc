@@ -1,0 +1,11 @@
+---
+description: Verify frontend changes in a browser with the obscura MCP server
+globs: resources/**
+alwaysApply: false
+---
+
+# Frontend Verification
+
+- After a visible change under `resources/` (layout, text, styling, error pages), check it with the `obscura` MCP server. Skip changes with no visible effect.
+- Open the site over `http://`, not `https://`: local Herd sites are not secured and `https` fails with `UnknownIssuer`.
+- If `obscura` is unavailable, say so instead of skipping verification silently.

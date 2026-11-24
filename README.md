@@ -86,7 +86,7 @@ The command uses three publishing strategies, described below.
 | `config/cors.php`, `config/filesystems.php`, `config/logging.php`             |                                                                                                                     |
 | `config/laravellocalization.php`, `config/sanctum.php`, `config/services.php` |                                                                                                                     |
 | `.env.example`, `.gitignore`, `phpunit.xml`, `pint.json`, `vite.config.js`    | Root config files                                                                                                   |
-| `.cursor/rules/`                                                              | Cursor AI rules (enum naming, etc.) — committed to the project, safe to extend                                      |
+| `.cursor/rules/`                                                              | Cursor AI rules (enum naming, frontend verification via obscura) — committed to the project, safe to extend         |
 | `.github/`                                                                    | Deploy workflows and `deploy.sh` (auto-deploy disabled by default — see [CI/CD auto-deploy](#cicd-auto-deploy))     |
 
 `bootstrap/app.php` is overwritten wholesale, so it already registers `routes/auth.php` (under the `api` middleware group and `/api` prefix). Keep your own application routes in the host-owned `routes/api.php`; the starter routes live in the standalone, overwritable `routes/auth.php`.
@@ -99,6 +99,7 @@ The command uses three publishing strategies, described below.
 | `routes/web.php`                     | Copied only when the file does not already contain `LaravelLocalization::setLocale()`; otherwise left untouched               |
 | `routes/console.php`                 | Copied only when the file does not already contain `Schedule::command('app:update-geoip-database')`; otherwise left untouched |
 | `app/Http/Middleware/EnsureUser.php` | Copied only when the file does not already contain `!$request->user() instanceof User`; otherwise left untouched              |
+| `.cursor/mcp.json`                   | Copied only when the file does not already contain `"mcpServers"`; otherwise left untouched (see [MCP servers](#mcp-servers)) |
 
 ### Migrations (published with a fresh timestamp)
 
@@ -116,9 +117,19 @@ After publishing, create the public storage symlink:
 php artisan storage:link
 ```
 
+### MCP servers
+
+`starter:publish` seeds `.cursor/mcp.json` with three servers when the file has no `mcpServers` yet. The file stays git-ignored, so each developer keeps their own copy.
+
+| Server          | Notes                                                                                                                                            |
+|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `laravel-boost` | Runs `php artisan boost:mcp` from the project root.                                                                                              |
+| `herd`          | Uses `${userHome}/.config/herd/bin/herd-mcp.phar` and `${workspaceFolder}` as `SITE_PATH`. Adjust the phar path if Herd lives elsewhere (macOS). |
+| `obscura`       | Expects the `obscura` binary on `PATH`. Remove the entry if Obscura is not installed.                                                            |
+
 ### Laravel Boost
 
-The generated AI guidelines and MCP configs are **not** published — they embed machine-specific absolute paths and version-pinned guidelines, and are git-ignored (`.cursor/`, `.ai/`, `AGENTS.md`). Regenerate them locally after publishing:
+The generated AI guidelines and the Boost MCP configs are **not** published — they embed machine-specific absolute paths and version-pinned guidelines, and are git-ignored (`.cursor/`, `.ai/`, `AGENTS.md`). Regenerate them locally after publishing:
 
 ```bash
 php artisan boost:install

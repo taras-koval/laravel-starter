@@ -1,0 +1,27 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "php",
+            "args": [
+                "artisan",
+                "boost:mcp"
+            ]
+        },
+        "herd": {
+            "command": "php",
+            "args": [
+                "${userHome}/.config/herd/bin/herd-mcp.phar"
+            ],
+            "env": {
+                "SITE_PATH": "${workspaceFolder}"
+            }
+        },
+        "obscura": {
+            "command": "obscura",
+            "args": [
+                "--allow-private-network",
+                "mcp"
+            ]
+        }
+    }
+}
