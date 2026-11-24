@@ -11,3 +11,12 @@ alwaysApply: false
 - Inspect the rendered page, not just the DOM or source. Check layout, spacing, typography, and visual consistency of the affected UI.
 - If the change affects mobile layout, also inspect a mobile viewport.
 - If `obscura` is unavailable, say so instead of skipping verification silently. Never claim a change was verified unless the page was actually inspected.
+
+## Known obscura limitations
+
+- `window.innerWidth` stays at 1280. For a mobile view, pass `width` to `browser_screenshot` (e.g. `width: 390`): the page is re-laid out at that width. Scroll position is not remapped, so use a tall `height` (e.g. `6500`) to capture the whole page, then compare the stacking order of blocks. Fine details are unreadable in a downscaled tall shot.
+- `<iframe>` content (maps, embeds) is not rendered, only an empty box. Check size and position only.
+- `rounded-full` (Tailwind v4 `calc(infinity * 1px)`) computes to `0px`, so pills and circles look square. Judge shape by sibling elements that use the same class, or by the source.
+- Elements revealed on scroll stay hidden until scrolled into view. Force their final state with `browser_evaluate` before taking a screenshot.
+- `browser_evaluate` shares one scope between calls: wrap code in an IIFE to avoid `Identifier has already been declared`.
+- State what was not verified because of these limits. Do not describe a limit as a verified result.
