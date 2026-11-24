@@ -6,6 +6,8 @@ alwaysApply: false
 
 # Frontend Verification
 
-- After a visible change under `resources/` (layout, text, styling, error pages), check it with the `obscura` MCP server. Skip changes with no visible effect.
+- After a visible change under `resources/` (layout, text, styling, error pages), verify it with the `obscura` MCP server. Skip changes with no visible effect.
 - Open the site over `http://`, not `https://`: local Herd sites are not secured and `https` fails with `UnknownIssuer`.
-- If `obscura` is unavailable, say so instead of skipping verification silently.
+- Inspect the rendered page, not just the DOM or source. Check layout, spacing, typography, and visual consistency of the affected UI.
+- If the change affects mobile layout, also inspect a mobile viewport.
+- If `obscura` is unavailable, say so instead of skipping verification silently. Never claim a change was verified unless the page was actually inspected.
