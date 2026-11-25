@@ -10,7 +10,7 @@
         "herd": {
             "command": "php",
             "args": [
-                "${userHome}/.config/herd/bin/herd-mcp.phar"
+                "${env:USERPROFILE}/.config/herd/bin/herd-mcp.phar"
             ],
             "env": {
                 "SITE_PATH": "${workspaceFolder}"

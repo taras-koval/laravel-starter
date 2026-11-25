@@ -56,6 +56,7 @@ class StarterPublishCommand extends Command
         'config/logging.php' => 'config/logging.php',
         'config/sanctum.php' => 'config/sanctum.php',
         'config/services.php' => 'config/services.php',
+        '.cursor/mcp.json' => '.cursor/mcp.json',
         '.env.example' => '.env.example',
         '.gitignore' => '.gitignore',
         'vite.config.js' => 'vite.config.js',
@@ -92,12 +93,6 @@ class StarterPublishCommand extends Command
             'destination' => 'app/Http/Middleware/EnsureUser.php',
             'needle' => '!$request->user() instanceof User',
             'label' => 'EnsureUser middleware',
-        ],
-        [
-            'stub' => '.cursor/mcp.json',
-            'destination' => '.cursor/mcp.json',
-            'needle' => '"mcpServers"',
-            'label' => 'MCP server config',
         ],
     ];
 

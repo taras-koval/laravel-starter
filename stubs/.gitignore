@@ -7,7 +7,6 @@
 .phpunit.result.cache
 /.ai
 /.codex
-/.cursor/mcp.json
 /.cursor/rules/graphify.mdc
 /.cursor/rules/laravel-boost.mdc
 /.cursor/skills
